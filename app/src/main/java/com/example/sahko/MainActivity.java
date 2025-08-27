@@ -1,55 +1,60 @@
 package com.example.sahko;
-import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-//package com.example.tervejava;
-
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.Gravity;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView textView;
+    private Handler handler = new Handler();
+    private final int UPDATE_INTERVAL = 1000; // 1 sekunti
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Luodaan TextView ja näytetään nykyinen aika
-        TextView textView = new TextView(this);
-        String currentTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date());
-        textView.setText("Terve! Aika nyt: " + currentTime);
+        // Luodaan LinearLayout taustaksi
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setGravity(Gravity.CENTER);
+        layout.setBackgroundColor(Color.BLACK); // tumma tausta
 
-        setContentView(textView);
+        // Luodaan TextView
+        textView = new TextView(this);
+        textView.setTextSize(36f); // iso fontti
+        textView.setTextColor(Color.WHITE); // valkoinen teksti
+        layout.addView(textView);
+
+        setContentView(layout);
+
+        // Käynnistetään aika-päivitys
+        handler.post(updateRunnable);
     }
-}
 
-/*
-import android.os.Bundle;
+    // Runnable päivittää kellon ajan sekunnin välein
+    private Runnable updateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            String currentTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
+                    .format(new Date());
+            textView.setText("Aika on nyt: " + currentTime);
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
-
-public class MainActivity extends AppCompatActivity {
+            // Asetetaan uudelleen 1 sekunnin kuluttua
+            handler.postDelayed(this, UPDATE_INTERVAL);
+        }
+    };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(updateRunnable); // pysäytetään päivitys
     }
 }
-*/
