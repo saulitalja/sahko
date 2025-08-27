@@ -7,15 +7,21 @@ import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView textView;
     private Handler handler = new Handler();
     private final int UPDATE_INTERVAL = 1000; // 1 sekunti
+
+    // Kohdeaika: 28.11.2025 17:30
+    private final String TARGET_DATE = "28.11.2025 17:30";
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +45,39 @@ public class MainActivity extends AppCompatActivity {
         handler.post(updateRunnable);
     }
 
-    // Runnable päivittää kellon ajan sekunnin välein
+    // Runnable päivittää jäljellä olevan ajan sekunnin välein
     private Runnable updateRunnable = new Runnable() {
         @Override
         public void run() {
-            String currentTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault())
-                    .format(new Date());
-            textView.setText("Aika on nyt: " + currentTime);
+            try {
+                Date now = new Date();
+                Date target = sdf.parse(TARGET_DATE);
+
+                if (target != null) {
+                    long diffInMillis = target.getTime() - now.getTime();
+
+                    if (diffInMillis > 0) {
+                        long days = TimeUnit.MILLISECONDS.toDays(diffInMillis);
+                        long hours = TimeUnit.MILLISECONDS.toHours(diffInMillis) % 24;
+                        long minutes = TimeUnit.MILLISECONDS.toMinutes(diffInMillis) % 60;
+                        long seconds = TimeUnit.MILLISECONDS.toSeconds(diffInMillis) % 60;
+
+                        String remaining = String.format(
+                                Locale.getDefault(),
+                                "%d päivää %02d:%02d:%02d",
+                                days, hours, minutes, seconds
+                        );
+
+                        textView.setText("Buffaan aikaa jäljellä: " + remaining + "\nMenossa mukana myös Pandora!");
+                    } else {
+                        textView.setText("Aika saavutettu!");
+                    }
+                } else {
+                    textView.setText("Virhe: kohdeaikaa ei voitu laskea");
+                }
+            } catch (Exception e) {
+                textView.setText("Virhe ajassa: " + e.getMessage());
+            }
 
             // Asetetaan uudelleen 1 sekunnin kuluttua
             handler.postDelayed(this, UPDATE_INTERVAL);
