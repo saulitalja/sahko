@@ -7,7 +7,7 @@ import android.view.Gravity;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.os.Looper;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
                         );
 
                         textView.setText("Buffaan aikaa jäljellä: " + remaining + "\nMenossa mukana myös Pandora!");
+                        //System.exit(0);
                     } else {
                         textView.setText("Aika saavutettu!");
                     }
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Asetetaan uudelleen 1 sekunnin kuluttua
             handler.postDelayed(this, UPDATE_INTERVAL);
+
         }
     };
 
